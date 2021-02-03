@@ -19,6 +19,8 @@ public:
 
     void next(T value)
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         throwIfClosed();
         if (!this->m_isStopped) {
             std::for_each(m_observers.begin(), m_observers.end(), [&, value](std::shared_ptr<Observer<T>> obs) mutable {
@@ -29,6 +31,8 @@ public:
 
     void error()
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         throwIfClosed();
         if (!this->m_isStopped) {
             m_isStopped = m_hasError = true;
@@ -41,6 +45,8 @@ public:
 
     void complete()
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         throwIfClosed();
         if (!this->m_isStopped) {
             m_isStopped = true;
@@ -53,18 +59,24 @@ public:
 
     void unsubscribe()
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         m_isStopped = m_closed = true;
         m_observers.clear();
     }
 
     Observable<T> asObservable()
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         return this->_createChild();
     }
 
 protected:
     std::shared_ptr<Subscription> _subscribe(std::shared_ptr<Subscriber<T>> subscriber) override
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         throwIfClosed();
         if (m_hasError) {
             subscriber->error();
@@ -75,10 +87,14 @@ protected:
 
     std::shared_ptr<Subscription> _innerSubscribe(std::shared_ptr<Subscriber<T>> subscriber)
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         if (m_hasError || m_isStopped)
             return Subscription::empty();
         m_observers.push_back(subscriber);
         return std::shared_ptr<Subscription>(new Subscription([&, this, subscriber]() {
+            std::lock_guard<std::mutex> l(_mtx)
+
             m_observers.erase(std::find_if(m_observers.begin(), m_observers.end(), [&subscriber](std::shared_ptr<Observer<T>> obs) {
                 return (obs.get() == subscriber.get());
             }));
@@ -88,10 +104,14 @@ protected:
 private:
     void setSource(Observable<T>& obs)
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         obs.m_source = this;
     }
     void throwIfClosed() const
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         if (m_closed)
             throw std::exception();
     }
@@ -100,6 +120,7 @@ private:
     bool m_closed = false;
     bool m_isStopped = false;
     bool m_hasError = false;
+    mutable std::mutex _mtx;
 };
 }
 

@@ -10,6 +10,8 @@ class Subscription {
 public:
     Subscription(std::function<void()> teardown = nullptr)
     {
+        std::lock_guard<std::mutex> l(_mtx);
+
         if (teardown)
             m_teardowns.push_back(teardown);
     }
@@ -17,6 +19,8 @@ public:
 
     void unsubscribe()
     {
+        std::lock_guard<std::mutex> l(_mtx);
+
         if (m_closed) {
             return;
         }
@@ -28,6 +32,8 @@ public:
     };
     void add(std::function<void()> teardown)
     {
+        std::lock_guard<std::mutex> l(_mtx);
+
         if (m_closed) {
             teardown();
             return;
@@ -37,6 +43,8 @@ public:
 
     void add(std::shared_ptr<Subscription> teardown)
     {
+        std::lock_guard<std::mutex> l(_mtx);
+
         if (teardown.get() == this)
             return;
         if (m_closed) {
@@ -72,6 +80,7 @@ private:
     std::vector<std::function<void()>> m_teardowns;
     std::vector<std::shared_ptr<Subscription>> m_subscriptions;
     std::vector<std::shared_ptr<Subscription>> m_parent;
+    std::mutex _mtx;
 };
 }
 

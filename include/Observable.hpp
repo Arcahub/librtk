@@ -25,6 +25,7 @@ public:
         std::function<void()> onError = nullptr,
         std::function<void()> onComplete = nullptr)
     {
+        std::lock_guard<std::mutex> l(_mtx)
         std::shared_ptr<Subscriber<T>> subscriber(new Subscriber<T>(onNext, onError, onComplete));
 
         subscriber->add(_subscribe(subscriber));
@@ -34,6 +35,7 @@ public:
 protected:
     Observable<T> _createChild()
     {
+        std::lock_guard<std::mutex> l(_mtx)
         Observable<T> obs;
 
         obs.m_source = this;
@@ -42,6 +44,8 @@ protected:
 
     virtual std::shared_ptr<Subscription> _subscribe(std::shared_ptr<Subscriber<T>> subscriber)
     {
+        std::lock_guard<std::mutex> l(_mtx)
+
         if (m_subscribe != nullptr) {
             m_subscribe(subscriber);
             return Subscription::empty();
@@ -54,6 +58,7 @@ protected:
         return Subscription::empty();
     };
     Observable<T>* m_source;
+    mutable std::mutex _mtx;
     std::function<void(std::shared_ptr<Subscription>)> m_subscribe;
 };
 }
