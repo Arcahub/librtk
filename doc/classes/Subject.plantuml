@@ -1,0 +1,54 @@
+@startuml Subject
+
+class Subject {
+    +void next(T value)
+    +void error()
+    +void complete()
+    +void unsubscribe()
+    +Obersvable<T> asObservable()
+    ---
+    #void Subscription *_subscribe(Subscriber<T>* subscriber)
+    ---
+    -bool m_closed
+    -bool m_isStopped
+    -bool m_hasError
+    -std::vector<Observer<T>*> m_observers
+}
+
+note left of Subject::next
+    If subject not closed
+        Call next on every m_observers with value
+end note
+
+note left of Subject::error
+    If subject not closed
+        Call error on every m_observers
+        Close subject and clear m_observers
+end note
+
+note left of Subject::complete
+    If subject not closed
+        Call complete on every m_observers
+        Close subject and clear m_observers and set hasError
+end note
+
+note left of Subject::unsubscribe
+    Close subject and clear m_observers
+end note
+
+note left of Subject::asObservable
+    Return an Observable with the subejct as Source
+end note
+
+note right of Subject::_subscribe
+    If Subject hasError
+        Call error on subscriber and return empty Subscription
+    If Subject isClosed
+        Call complete on subscriber and return empty Subscription
+    Store subscriber in m_observers
+    Return Subscription with callback that will remove subscriber from m_observers
+end note
+
+
+
+@enduml

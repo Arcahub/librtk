@@ -1,0 +1,35 @@
+@startuml Subscriber
+
+class Subscriber {
+    +Subscriber(
+        std::function<void(T&)> onNext,
+        std::function<void()> onError,
+        std::function<void()> onComplete
+    )
+    +void next(T value)
+    +void error()
+    +void completet()
+    ---
+    -bool isStopped
+    -{field} std::function<void(T&)> m_next,
+    -{field} std::function<void()> m_error
+    -{field} std::function<void()> m_complete
+}
+
+note left of Subscriber::Subscriber
+    Store lambdas given as arguments
+end note
+
+note left of Subscriber::next
+    Call next callback if set
+end note
+
+note left of Subscriber::error
+    Call error callback if set
+end note
+
+note left of Subscriber::complete
+    Call complete callback if set
+end note
+
+@enduml

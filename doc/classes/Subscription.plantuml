@@ -1,0 +1,21 @@
+@startuml Subscription
+
+class Subscription {
+    +Subscription(std::function<void()> teardown)
+    +void unsubscribe()
+    +void add(std::function<void()> teardown)
+}
+
+note left of Subscription::Subscription
+    Store teardown given as argument
+end note
+
+note left of Subscription::unsubscribe
+    Call every teardowns stored and close the Subscription
+end note
+
+note left of Subscription::add
+    Add a teardown in the list of teardow of the Subscription
+end note
+
+@enduml

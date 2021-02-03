@@ -1,0 +1,38 @@
+@startuml Observable
+
+class Observable {
+    +Observable(std::function<void(Subscriber<T>*)> sub)
+    +void subscribe(
+        std::function<void(T&)> onNext,
+        std::function<void()> onError,
+        std::function<void()> onComplete)
+    ---
+    #void Subscription *_subscribe(Subscriber<T>* subscriber)
+    ------
+    #Observable<T>* m_source
+    #{field} std::function<void(Subscriber<T>*)> m_suscribe
+}
+
+note left of Observable::Observable
+    If sub given as argument is not null
+        Set m_subscribe with sub
+end note
+
+note left of Observable::subscribe
+    Create a subscriber with callbacks passed as params
+    Add Subscription created from _subscribe to subscriber
+    Return the subscriber
+end note
+
+note left of Observable::_subscribe
+    If m_suscribe is set
+        Call m_suscribe
+        Return empty Subscription
+    If m_source is set
+        Call m_source.subscribe with callback
+            ==> call subscriber.next
+        Return Subscription get from m_source.subscribe
+    Return empty Subscription
+end note
+
+@enduml

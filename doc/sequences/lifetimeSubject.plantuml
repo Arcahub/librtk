@@ -1,0 +1,85 @@
+@startuml lifetimeSubject
+
+partition Main {
+    (*) --> "Subject subject"
+    --> "Observable observable = subject.asObservable()"
+    --> asObservable
+}
+
+partition asObservable {
+    --> "Observable obs"
+    --> "obs.source = subject"
+    --> "return obs"
+    "return obs" --> "Observable observable = subject.asObservable()"
+}
+
+partition Main {
+    --> "Subscription subscription = observable.subscribe(nextCallback)"
+    --> subscribe(nextCallback)
+}
+
+partition subscribe(nextCallback) {
+    --> "Subscriber subscriber"
+    --> "subscriber set nextCallback"
+    --> "Subscription sourceSubscription = source._subscribe(subscriber)"
+}
+
+partition _subscribe(subscriber) {
+    --> subject.observers.push(subscriber)
+    --> "Subscription subjectSubscription(subscriptionCallback)"
+    --> "return subjectSubscription"
+    --> "Subscription sourceSubscription = _subscribe(subscriber)"
+}
+
+partition subscribe(nextCallback) {
+    --> "subscriber->add(sourceSubscription)"
+    --> add(sourceSubscription)
+}
+
+partition add(sourceSubscription) {
+    --> "add sourceSubscription to teardowns"
+    --> "subscriber->add(sourceSubscription)"
+}
+
+partition subscribe(nextCallback) {
+    --> "return sourceSubscription"
+    --> "Subscription subscription = observable.subscribe(nextCallback)"
+}
+
+partition Main {
+    --> "subject.next(value)"
+    --> next(value)
+}
+
+partition next(value) {
+    --> "call next on every subject.observers"
+    --> "subject.next(value)"
+}
+
+partition Main {
+    --> "subscription.unsubscribe()"
+}
+
+partition unsubscribe {
+    if "already closed?" then
+        -> [Yes] "return"
+    else
+        --> [No] "close subscription"
+        --> "call teardowns"
+        --> "subscription.unsubscribe()"
+}
+
+partition Main {
+    --> (*)
+}
+
+partition nextCallback() {
+    "Subscription subscription = observable.subscribe(nextCallback)" --> "print value"
+}
+
+partition subscriptionCallback() {
+    "Subscription subjectSubscription(subscriptionCallback)" --> "subject.observers.remove(subscriber)"
+}
+
+
+@enduml

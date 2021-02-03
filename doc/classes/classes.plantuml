@@ -1,0 +1,79 @@
+@startuml classes
+
+interface Observer<T>
+interface Subscribable<T>
+
+class Observable<T>
+class Subject<T>
+class Subscriber<T>
+class Subscription
+
+Observer <|-- Subscriber
+Subscription <|-- Subscriber
+
+Subscribable <|-- Observable
+Observable <|-- Subject
+
+interface Observer {
+    +void next(T &nextValue);
+    +void error();
+    +void complete();
+}
+
+interface Subscribable {
+    +void subscribe(
+        std::function<void(T&)> onNext,
+        std::function<void()> onError,
+        std::function<void()> onComplete)
+}
+
+class Subscription {
+    +Subscription(std::function<void()> teardown)
+    +void unsubscribe()
+    +void add(std::function<void()> teardown)
+}
+
+class Subscriber {
+    +Subscriber(
+        std::function<void(T&)> onNext,
+        std::function<void()> onError,
+        std::function<void()> onComplete
+    )
+    +void next(T value)
+    +void error()
+    +void completet()
+
+    -bool isStopped
+    -{field} std::function<void(T&)> m_next,
+    -{field} std::function<void()> m_error
+    -{field} std::function<void()> m_complete
+}
+
+class Observable {
+    +Observable(std::function<void(Subscriber<T>*)> subscribe)
+    +void subscribe(
+        std::function<void(T&)> onNext,
+        std::function<void()> onError,
+        std::function<void()> onComplete)
+    ---
+    #void Subscription *_subscribe(Subscriber<T>* subscriber)
+    #Observable<T>* m_source
+    #{field} std::function<void(Subscriber<T>*)> m_suscribe
+}
+
+class Subject {
+    +void next(T value)
+    +void error()
+    +void complete()
+    +void unsubscribe()
+    +Obersvable<T> asObservable()
+    ---
+    #void Subscription *_subscribe(Subscriber<T>* subscriber)
+    ---
+    -bool m_closed
+    -bool m_isStopped
+    -bool m_hasError
+    -std::vector<Observer<T>*> m_observers
+}
+
+@enduml
