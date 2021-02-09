@@ -1,45 +1,55 @@
-CXX	= g++
+##
+## EPITECH PROJECT, 2021
+## rtk
+## File description:
+## Makefile automatically generated using Epine!
+##
 
-AR = ar -rc
+NAME = unit_tests
 
-NAME = librtk.a
+all: 
+.PHONY: all
 
-CXXFLAGS = -std=c++11 -W -Wall -Wextra -I./include -g3
+__NAME__SRCS := $(shell find -path './tests/*.cpp')
+__NAME__OBJS := $(filter %.cpp,$(__NAME__SRCS))
+__NAME__OBJS := $(__NAME__OBJS:.cpp=.o)
+__NAME__DEPS := $(__NAME__OBJS:.o=.d)
+$(NAME) $(__NAME__OBJS):
+$(NAME): CPPFLAGS :=
+$(NAME): CPPFLAGS += -MD -MP
+$(NAME): CPPFLAGS += -I./include
+$(NAME): CXXFLAGS :=
+$(NAME): CXXFLAGS += --coverage -Wall -Wextra -pedantic
+$(NAME): LDLIBS :=
+$(NAME): LDLIBS += -lpthread
+$(NAME): LDLIBS += -lcriterion
+$(NAME): LDFLAGS :=
+$(NAME): LDFLAGS += -L.
+$(NAME): LDFLAGS += --coverage
+$(NAME): $(__NAME__OBJS)
+	@echo [binary] $@
+	@$(CXX) -o $@ $(__NAME__OBJS) $(LDFLAGS) $(LDLIBS)
+-include $(__NAME__DEPS)
 
-SRC = $(shell find src/ -type f -name '*.cpp' 2>/dev/null)
-
-TEST_SRC = $(shell find tests/ -type f -name '*.cpp' 2>/dev/null)
-
-OBJ = $(SRC:.cpp=.o)
-TEST_OBJ = $(TEST_SRC:.cpp=.o)
-
-DEPENDS := $(patsubst %.cpp,%.d,$(SRC))
-
+%.o: %.c
+	@echo [C] $@
+	@$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
--include $(DEPENDS)
+	@echo [C++] $@
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-all: $(NAME)
-
-$(NAME): $(OBJ)
-	$(AR) $@ $(OBJ)
-
-debug: CXXFLAGS += -g3
-debug: all
+tests_run: ./unit_tests
+	./unit_tests $(ARGS)
+.PHONY: tests_run
 
 clean:
-	rm -rf $(OBJ)
-	rm -rf $(TEST_OBJ)
-	rm -rf **/*.gcda
-	rm -rf **/*.gcno
+	$(RM) $(__NAME__DEPS) $(__NAME__OBJS)
+.PHONY: clean
 
 fclean: clean
-	rm -rf $(NAME)
-	rm -rf unit_tests
+	$(RM) $(NAME)
+	$(RM) ./unit_tests
+.PHONY: fclean
 
 re: fclean all
-
-tests_run: CXXFLAGS += -lcriterion --coverage -lpthread
-tests_run: re $(TEST_OBJ)
-	$(CXX) -o unit_tests $(TEST_OBJ) $(CXXFLAGS) -L./ -lrtk
-	./unit_tests
+.PHONY: re
