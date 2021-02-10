@@ -12,7 +12,7 @@ template <typename T>
 class Observable : public Subscribable<T> {
 public:
     Observable(
-        std::function<void(std::shared_ptr<Subscription>)> subscribe = nullptr)
+        std::function<void(std::shared_ptr<Subscriber<T>>)> subscribe = nullptr)
     {
         m_subscribe = subscribe;
         m_source = nullptr;
@@ -27,7 +27,7 @@ public:
     virtual ~Observable() = default;
 
     std::shared_ptr<Subscription> subscribe(
-        std::function<void(T&)> onNext = nullptr,
+        std::function<void(T)> onNext = nullptr,
         std::function<void()> onError = nullptr,
         std::function<void()> onComplete = nullptr)
     {
@@ -56,14 +56,14 @@ protected:
             return Subscription::empty();
         }
         if (m_source)
-            return m_source->subscribe([&, this, subscriber](T& value) { subscriber->next(value); }, [&, this, subscriber]() { subscriber->error(); },
+            return m_source->subscribe([&, this, subscriber](T value) { subscriber->next(value); }, [&, this, subscriber]() { subscriber->error(); },
                 [&, this, subscriber]() {
                     subscriber->complete();
                 });
         return Subscription::empty();
     };
     Observable<T>* m_source;
-    std::function<void(std::shared_ptr<Subscription>)> m_subscribe;
+    std::function<void(std::shared_ptr<Subscriber<T>>)> m_subscribe;
 
 private:
     mutable std::mutex _mtx;

@@ -7,7 +7,7 @@ class Observer {
 public:
     virtual ~Observer() = default;
 
-    virtual void next(T&) = 0;
+    virtual void next(T) = 0;
     virtual void error() = 0;
     virtual void complete() = 0;
 };

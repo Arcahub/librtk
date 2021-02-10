@@ -10,7 +10,7 @@ template <typename T>
 class Subscriber : public Observer<T>, public Subscription {
 public:
     Subscriber(
-        std::function<void(T&)> onNext = nullptr,
+        std::function<void(T)> onNext = nullptr,
         std::function<void()> onError = nullptr,
         std::function<void()> onComplete = nullptr)
         : Subscription()
@@ -21,7 +21,7 @@ public:
     }
     ~Subscriber() {};
 
-    void next(T& value)
+    void next(T value)
     {
         if (m_next)
             m_next(value);
@@ -41,7 +41,7 @@ protected:
     bool _isStopped = false;
     std::function<void()> m_error;
     std::function<void()> m_complete;
-    std::function<void(T&)> m_next;
+    std::function<void(T)> m_next;
 };
 }
 
