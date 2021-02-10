@@ -15,9 +15,9 @@ class Subject : public Observable<T> {
 public:
     Subject()
         : Observable<T>() {};
-    ~Subject() {};
+    virtual ~Subject() = default;
 
-    void next(T value)
+    virtual void next(T value)
     {
         std::lock_guard<std::mutex> l(_mtx);
 
@@ -71,7 +71,7 @@ public:
     }
 
 protected:
-    std::shared_ptr<Subscription> _subscribe(std::shared_ptr<Subscriber<T>> subscriber) override
+    virtual std::shared_ptr<Subscription> _subscribe(std::shared_ptr<Subscriber<T>> subscriber) override
     {
         {
             std::lock_guard<std::mutex> l(_mtx);
@@ -103,16 +103,17 @@ protected:
         }));
     }
 
-private:
     void throwIfClosed() const
     {
         if (m_closed)
             throw std::exception();
     }
 
+    bool m_isStopped = false;
+
+private:
     std::vector<std::shared_ptr<Observer<T>>> m_observers;
     bool m_closed = false;
-    bool m_isStopped = false;
     bool m_hasError = false;
     mutable std::mutex _mtx;
 };

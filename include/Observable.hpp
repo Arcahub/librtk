@@ -24,7 +24,7 @@ public:
         m_subscribe = obs.m_subscribe;
     }
 
-    ~Observable() {};
+    virtual ~Observable() = default;
 
     std::shared_ptr<Subscription> subscribe(
         std::function<void(T&)> onNext = nullptr,

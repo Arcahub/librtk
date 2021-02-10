@@ -5,7 +5,7 @@ namespace rtk {
 template <typename T>
 class Observer {
 public:
-    virtual ~Observer() {};
+    virtual ~Observer() = default;
 
     virtual void next(T&) = 0;
     virtual void error() = 0;

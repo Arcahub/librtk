@@ -61,6 +61,11 @@ public:
         m_subscriptions.push_back(teardown);
     }
 
+    bool isClosed() const
+    {
+        return m_closed;
+    }
+
     static std::shared_ptr<Subscription> empty()
     {
         std::shared_ptr<Subscription> sub(new Subscription());
