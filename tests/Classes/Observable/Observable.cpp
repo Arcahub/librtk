@@ -4,7 +4,9 @@
 
 Test(test_observable, empty_observable)
 {
-    rtk::Observable<int> obs();
+    rtk::Observable<int> obs;
+
+    obs.subscribe();
 }
 
 Test(test_observable, with_subscriber_next)
