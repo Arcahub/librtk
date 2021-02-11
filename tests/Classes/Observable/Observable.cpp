@@ -57,3 +57,16 @@ Test(test_observable, with_subscriber_next_and_complete)
     obs.subscribe([&sum](int value) { sum += value; }, nullptr, [&sum]() { sum += 5; });
     cr_assert_eq(sum, 10);
 }
+
+rtk::Observable<int> test_op(rtk::Observable<int> obs)
+{
+    return obs;
+}
+
+Test(test_observable, pipe)
+{
+    rtk::Observable<int> obs;
+    rtk::Operator<int, int> op = test_op;
+
+    obs = obs >> op;
+}
