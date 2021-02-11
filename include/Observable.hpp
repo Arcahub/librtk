@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 
+#include "Operator.hpp"
 #include "Subscribable.hpp"
 #include "Subscriber.hpp"
 
@@ -18,10 +19,17 @@ public:
         m_source = nullptr;
     };
 
-    Observable(const Observable& obs)
+    Observable(const Observable<T>& obs)
     {
         m_source = obs.m_source;
         m_subscribe = obs.m_subscribe;
+    }
+
+    Observable<T>& operator=(const Observable<T>& obs)
+    {
+        m_source = obs.m_source;
+        m_subscribe = obs.m_subscribe;
+        return *this;
     }
 
     virtual ~Observable() = default;
@@ -36,6 +44,14 @@ public:
 
         subscriber->add(_subscribe(subscriber));
         return subscriber;
+    }
+
+    template <typename U>
+    Observable<U> operator>>(Operator<T, U> op)
+    {
+        if (op)
+            return op(*this);
+        return *this;
     }
 
 protected:
