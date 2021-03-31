@@ -1,63 +1,94 @@
 #include "rtk/Subject.hpp"
-#include <criterion/assert.h>
-#include <criterion/criterion.h>
+#include "gtest/gtest.h"
 
-Test(test_subject_primitive, create)
+TEST(test_subject_primitive, create)
 {
     rtk::Subject<int> s;
 }
 
-Test(test_subject_primitive, next_without_sub)
+TEST(test_subject_primitive, next_without_sub)
 {
     rtk::Subject<int> s;
 
     s.next(1);
 }
 
-Test(test_subject_primitive, error_without_sub)
+TEST(test_subject_primitive, error_without_sub)
 {
     rtk::Subject<int> s;
 
     s.error();
 }
 
-Test(test_subject_primitive, error_with_already_error_called)
+TEST(test_subject_primitive, error_with_already_error_called)
 {
     rtk::Subject<int> s;
+    auto obs = s.asObservable();
+    int sum = 0;
 
+    obs.subscribe(nullptr, ([&sum]() mutable {
+        sum += 5;
+    }));
+    ASSERT_EQ(sum, 0);
     s.error();
-    cr_expect_throw(s.error(), std::exception);
+    ASSERT_EQ(sum, 5);
+    s.error();
+    ASSERT_EQ(sum, 5);
 }
 
-Test(test_subject_primitive, complete_without_sub)
+TEST(test_subject_primitive, error_on_closed)
+{
+    rtk::Subject<int> s;
+
+    s.unsubscribe();
+    EXPECT_THROW(s.error(), std::exception);
+}
+
+TEST(test_subject_primitive, complete_without_sub)
 {
     rtk::Subject<int> s;
 
     s.complete();
 }
 
-Test(test_subject_primitive, complete_with_already_complete_called)
+TEST(test_subject_primitive, complete_with_already_complete_called)
+{
+    rtk::Subject<int> s;
+    auto obs = s.asObservable();
+    int sum = 0;
+
+    obs.subscribe(nullptr, nullptr, ([&sum]() mutable {
+        sum += 5;
+    }));
+    ASSERT_EQ(sum, 0);
+    s.complete();
+    ASSERT_EQ(sum, 5);
+    s.complete();
+    ASSERT_EQ(sum, 5);
+}
+
+TEST(test_subject_primitive, complete_on_closed)
 {
     rtk::Subject<int> s;
 
-    s.complete();
-    cr_expect_throw(s.complete(), std::exception);
+    s.unsubscribe();
+    EXPECT_THROW(s.complete(), std::exception);
 }
 
-Test(test_subject_primitive, asObservable)
+TEST(test_subject_primitive, asObservable)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
 }
 
-Test(test_subject_primitive, asObservable_two)
+TEST(test_subject_primitive, asObservable_two)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
     rtk::Observable<int> obs2 = s.asObservable();
 }
 
-Test(test_subject_primitive, subscribe_empty_one)
+TEST(test_subject_primitive, subscribe_empty_one)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -65,7 +96,7 @@ Test(test_subject_primitive, subscribe_empty_one)
     obs.subscribe();
 }
 
-Test(test_subject_primitive, subscribe_empty_two)
+TEST(test_subject_primitive, subscribe_empty_two)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -75,7 +106,7 @@ Test(test_subject_primitive, subscribe_empty_two)
     obs2.subscribe();
 }
 
-Test(test_subject_primitive, next_one_sub)
+TEST(test_subject_primitive, next_one_sub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -84,12 +115,12 @@ Test(test_subject_primitive, next_one_sub)
     obs.subscribe(([&sum](int value) mutable {
         sum += value;
     }));
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s.next(5);
-    cr_assert_eq(sum, 5);
+    ASSERT_EQ(sum, 5);
 }
 
-Test(test_subject_primitive, next_two_sub)
+TEST(test_subject_primitive, next_two_sub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -102,12 +133,12 @@ Test(test_subject_primitive, next_two_sub)
     obs.subscribe(([&sum](int value) mutable {
         sum += value;
     }));
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s.next(5);
-    cr_assert_eq(sum, 10);
+    ASSERT_EQ(sum, 10);
 }
 
-Test(test_subject_primitive, error_one_sub)
+TEST(test_subject_primitive, error_one_sub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -116,12 +147,12 @@ Test(test_subject_primitive, error_one_sub)
     obs.subscribe(nullptr, ([&sum]() mutable {
         sum += 5;
     }));
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s.error();
-    cr_assert_eq(sum, 5);
+    ASSERT_EQ(sum, 5);
 }
 
-Test(test_subject_primitive, error_two_sub)
+TEST(test_subject_primitive, error_two_sub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -134,12 +165,12 @@ Test(test_subject_primitive, error_two_sub)
     obs.subscribe(nullptr, ([&sum]() mutable {
         sum += 5;
     }));
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s.error();
-    cr_assert_eq(sum, 10);
+    ASSERT_EQ(sum, 10);
 }
 
-Test(test_subject_primitive, complete_one_sub)
+TEST(test_subject_primitive, complete_one_sub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -148,12 +179,12 @@ Test(test_subject_primitive, complete_one_sub)
     obs.subscribe(nullptr, nullptr, ([&sum]() mutable {
         sum += 5;
     }));
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s.complete();
-    cr_assert_eq(sum, 5);
+    ASSERT_EQ(sum, 5);
 }
 
-Test(test_subject_primitive, complete_two_sub)
+TEST(test_subject_primitive, complete_two_sub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -166,12 +197,12 @@ Test(test_subject_primitive, complete_two_sub)
     obs.subscribe(nullptr, nullptr, ([&sum]() mutable {
         sum += 5;
     }));
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s.complete();
-    cr_assert_eq(sum, 10);
+    ASSERT_EQ(sum, 10);
 }
 
-Test(test_subject_primitive, unsub)
+TEST(test_subject_primitive, unsub)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -187,7 +218,7 @@ Test(test_subject_primitive, unsub)
     s.unsubscribe();
 }
 
-Test(test_subject_primitive, unsub_expect_throw_on_next)
+TEST(test_subject_primitive, unsub_expect_throw_on_next)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -201,10 +232,10 @@ Test(test_subject_primitive, unsub_expect_throw_on_next)
         sum += value;
     }));
     s.unsubscribe();
-    cr_expect_throw(s.next(0), std::exception);
+    EXPECT_THROW(s.next(0), std::exception);
 }
 
-Test(test_subject_primitive, unsub_expect_throw_on_error)
+TEST(test_subject_primitive, unsub_expect_throw_on_error)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -218,10 +249,10 @@ Test(test_subject_primitive, unsub_expect_throw_on_error)
         sum += value;
     }));
     s.unsubscribe();
-    cr_expect_throw(s.error(), std::exception);
+    EXPECT_THROW(s.error(), std::exception);
 }
 
-Test(test_subject_primitive, unsub_expect_throw_on_complete)
+TEST(test_subject_primitive, unsub_expect_throw_on_complete)
 {
     rtk::Subject<int> s;
     rtk::Observable<int> obs = s.asObservable();
@@ -235,5 +266,5 @@ Test(test_subject_primitive, unsub_expect_throw_on_complete)
         sum += value;
     }));
     s.unsubscribe();
-    cr_expect_throw(s.complete(), std::exception);
+    EXPECT_THROW(s.complete(), std::exception);
 }

@@ -1,8 +1,8 @@
 #include "rtk/operator/syncAll.hpp"
 #include "rtk/Subject.hpp"
-#include <criterion/criterion.h>
+#include "gtest/gtest.h"
 
-Test(test_syncAll, empty)
+TEST(test_syncAll, empty)
 {
     auto obs = rtk::syncAll<int>({});
     int sum = 0;
@@ -10,10 +10,10 @@ Test(test_syncAll, empty)
     obs.subscribe([&](auto) {
         sum += 5;
     });
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
 }
 
-Test(test_syncAll, one)
+TEST(test_syncAll, one)
 {
     rtk::Subject<int> s;
     auto obs = rtk::syncAll<int>({ s.asObservable() });
@@ -24,10 +24,10 @@ Test(test_syncAll, one)
             sum += value;
     });
     s.next(5);
-    cr_assert_eq(sum, 5);
+    ASSERT_EQ(sum, 5);
 }
 
-Test(test_syncAll, two)
+TEST(test_syncAll, two)
 {
     rtk::Subject<int> s1;
     rtk::Subject<int> s2;
@@ -39,12 +39,12 @@ Test(test_syncAll, two)
             sum += value;
     });
     s1.next(5);
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s2.next(5);
-    cr_assert_eq(sum, 10);
+    ASSERT_EQ(sum, 10);
 }
 
-Test(test_syncAll, override)
+TEST(test_syncAll, override)
 {
     rtk::Subject<int> s1;
     rtk::Subject<int> s2;
@@ -57,9 +57,9 @@ Test(test_syncAll, override)
     });
     s1.next(5);
     s1.next(10);
-    cr_assert_eq(sum, 0);
+    ASSERT_EQ(sum, 0);
     s2.next(5);
-    cr_assert_eq(sum, 10);
+    ASSERT_EQ(sum, 10);
     s2.next(10);
-    cr_assert_eq(sum, 30);
+    ASSERT_EQ(sum, 30);
 }

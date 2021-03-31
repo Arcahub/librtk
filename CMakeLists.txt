@@ -7,8 +7,6 @@ endif()
 project(rtk)
 include(CTest)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -20,15 +18,15 @@ add_library(rtk INTERFACE)
 
 target_include_directories(rtk INTERFACE "include")
 
-if (BUILD_TESTING)
-    find_package(Criterion)
+option(BUILD_TESTING "Build the tests" ON)
 
-    if(Criterion_FOUND)
+if(BUILD_TESTING)
+    enable_testing()
+    include(GoogleTest)
+    add_subdirectory("extern/googletest")
+    
 
-        set(THREADS_PREFER_PTHREAD_FLAG ON)
-        find_package(Threads REQUIRED)
-
-        add_executable(rtk_unit_tests
+    add_executable(rtk_unit_tests
             "tests/Classes/BehaviorSubject/BehaviorSubject_on_struct.cpp"
             "tests/Classes/BehaviorSubject/BehaviorSubject_primitive_type.cpp"
             "tests/Classes/BehaviorSubject/BehaviorSubject_thread.cpp"
@@ -41,26 +39,11 @@ if (BUILD_TESTING)
             "tests/Classes/Subject/Subject_thread.cpp"
             "tests/Classes/Subscription/Subscription_tests.cpp"
             "tests/Operators/syncAll.cpp"
-        )
-        target_link_libraries(rtk_unit_tests PRIVATE rtk)
-        target_link_libraries(rtk_unit_tests PRIVATE ${CRITERION_LIBRARIES})
-        target_include_directories(rtk_unit_tests
-            PRIVATE ${CRITERION_INCLUDE_DIRS})
+    )
 
-        target_link_libraries(rtk_unit_tests PRIVATE Threads::Threads)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
 
-        add_test(
-            NAME rtk_tests_build
-            COMMAND "${CMAKE_COMMAND}"
-                    --build "${CMAKE_BINARY_DIR}"
-                    --config "$<CONFIG>"
-                    --target rtk_unit_tests
-        )
-        set_tests_properties(rtk_tests_build
-            PROPERTIES FIXTURES_SETUP rtk_tests_fixture)
+    target_link_libraries(rtk_unit_tests rtk gtest gmock gtest_main Threads::Threads)
 
-        add_test(NAME rtk_tests COMMAND rtk_unit_tests)
-        set_tests_properties(rtk_tests
-            PROPERTIES FIXTURES_REQUIRED rtk_tests_fixture)
-    endif()
 endif()
