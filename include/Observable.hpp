@@ -49,9 +49,7 @@ public:
     template <typename U>
     Observable<U> operator>>(Operator<T, U> op)
     {
-        if (op)
-            return op(*this);
-        return *this;
+        return op(*this);
     }
 
 protected:
