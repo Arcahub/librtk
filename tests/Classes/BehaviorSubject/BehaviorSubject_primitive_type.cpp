@@ -1,4 +1,4 @@
-#include "BehaviorSubject.hpp"
+#include "rtk/BehaviorSubject.hpp"
 #include <criterion/assert.h>
 #include <criterion/criterion.h>
 

@@ -1,8 +1,8 @@
 #if !defined(SYNC_ALL_HPP)
 #define SYNC_ALL_HPP
 
-#include "Observable.hpp"
-#include "Subscriber.hpp"
+#include "rtk/Observable.hpp"
+#include "rtk/Subscriber.hpp"
 #include <queue>
 #include <vector>
 

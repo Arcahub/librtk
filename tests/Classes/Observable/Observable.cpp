@@ -1,5 +1,5 @@
-#include "Observable.hpp"
-#include "Subscriber.hpp"
+#include "rtk/Observable.hpp"
+#include "rtk/Subscriber.hpp"
 #include <criterion/criterion.h>
 
 Test(test_observable, empty_observable)

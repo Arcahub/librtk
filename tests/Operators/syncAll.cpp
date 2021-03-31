@@ -1,5 +1,5 @@
-#include "operator/syncAll.hpp"
-#include "Subject.hpp"
+#include "rtk/operator/syncAll.hpp"
+#include "rtk/Subject.hpp"
 #include <criterion/criterion.h>
 
 Test(test_syncAll, empty)

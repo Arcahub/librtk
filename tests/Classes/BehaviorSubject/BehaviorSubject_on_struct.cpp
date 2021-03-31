@@ -1,5 +1,5 @@
-#include "BehaviorSubject.hpp"
-#include "ReplaySubject.hpp"
+#include "rtk/BehaviorSubject.hpp"
+#include "rtk/ReplaySubject.hpp"
 #include <criterion/assert.h>
 #include <criterion/criterion.h>
 

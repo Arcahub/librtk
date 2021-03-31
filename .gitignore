@@ -1,10 +1,2 @@
-a.out
-*.o
-*.d
-*.gcda
-*.gcno
-main.cpp
-out
 .vscode
-librtk.a
-unit_tests
+build
