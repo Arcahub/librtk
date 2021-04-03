@@ -18,13 +18,13 @@ add_library(rtk INTERFACE)
 
 target_include_directories(rtk INTERFACE "include")
 
-option(BUILD_TESTING "Build the tests" ON)
-
 if(BUILD_TESTING)
     enable_testing()
     include(GoogleTest)
-    add_subdirectory("extern/googletest")
-    
+
+    if(NOT TARGET gtest)
+        add_subdirectory(extern/googletest)
+    endif()
 
     add_executable(rtk_unit_tests
             "tests/Classes/BehaviorSubject/BehaviorSubject_on_struct.cpp"
